@@ -6,6 +6,7 @@ The project now delivers the **Phase 1 MVP**: a Leaflet choropleth backed by in-
 
 - [Bun](https://bun.sh) `>= 1.0` (project was aligned on Bun 1.3.0)
 - `.env` with `NYC_LEGISTAR_TOKEN=<token>` (token stays on the server; never expose it to the client)
+- Optional: `GITHUB_TOKEN=<token>` if you hit GitHub’s unauthenticated rate limits when pulling the mirror dataset
 
 Install dependencies (requires network access):
 
@@ -22,7 +23,7 @@ bun install
    ```
 
    - Express listens on port `3000`
-   - `/api/issues` → current list of roll-call matters (top 10 sourced from `jehiah/nyc_legislation`)
+   - `/api/issues` → current list of roll-call matters (top 10 sourced from the cached `jehiah/nyc_legislation` snapshot)
    - `/api/issues/:matterId/votes` → district-level vote map + raw roll-call detail
    - `/data/**` → serves the TopoJSON asset needed by Leaflet
 
@@ -67,7 +68,7 @@ The server keeps everything in memory (per phase-1 constraints); no persistence 
 
 ### Roadmap / Data Plan
 
-Legistar’s NYC tenant does not currently expose modern (2020s) council roll calls via the public API. For the demo we surface the most recent accessible records, but the next phase will pivot to the open dataset maintained by [Jehiah Czebotar](https://github.com/jehiah/intro.nyc). We appreciate their work making recent council votes accessible.
+Legistar’s NYC tenant does not currently expose modern (2020s) council roll calls via the public API. For the demo we surface the most recent accessible records from the cached snapshot maintained by [Jehiah Czebotar](https://github.com/jehiah/nyc_legislation). We appreciate their work making recent council votes accessible.
 
 As part of that pivot we expect to introduce a lightweight persistence layer sooner than planned—polling GitHub on every request is wasteful, and neither the maintainer nor our API budget should bear that cost. Phase 2 will explore:
 

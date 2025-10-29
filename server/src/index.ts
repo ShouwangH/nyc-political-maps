@@ -1,3 +1,5 @@
+// ABOUTME: Express server wiring for the NYC vote visualization API and static assets.
+// ABOUTME: Inputs = HTTP requests, Outputs = JSON responses and TopoJSON assets.
 import express from 'express';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +16,7 @@ const dataDirectory = join(currentDir, '../../public/data');
 app.use('/data', express.static(dataDirectory));
 
 app.get('/healthz', (_req, res) => {
-  res.json({ status: 'ok', phase: 1, timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', phase: 2, timestamp: new Date().toISOString() });
 });
 
 app.get('/api/issues', async (_req, res) => {
@@ -42,7 +44,7 @@ app.get('/api/issues/:matterId/votes', async (req, res) => {
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`Phase 1 server listening on http://localhost:${PORT}`);
+  console.log(`Phase 2 server listening on http://localhost:${PORT}`);
 });
 
 function handleError(res: express.Response, error: unknown) {

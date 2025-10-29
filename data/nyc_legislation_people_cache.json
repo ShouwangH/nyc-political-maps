@@ -1,0 +1,465 @@
+{
+  "source": "https://github.com/jehiah/nyc_legislation",
+  "fetched_at": "2025-10-29T16:24:17.671Z",
+  "people": {
+    "julie-won": {
+      "slug": "julie-won",
+      "personId": 7816,
+      "fullName": "Julie Won",
+      "www": "https://council.nyc.gov/julie-won/",
+      "source_file": "people/julie-won.json",
+      "sha": "97134b1d593583821769d738a938ab07c1de2e46",
+      "fetched_at": "2025-10-29T15:58:28.707Z"
+    },
+    "sandra-ung": {
+      "slug": "sandra-ung",
+      "personId": 7812,
+      "fullName": "Sandra Ung",
+      "www": "https://council.nyc.gov/district-20/",
+      "source_file": "people/sandra-ung.json",
+      "sha": "e5af2c51c7964982ff7545fb9b66207ac76bfbdb",
+      "fetched_at": "2025-10-29T15:58:28.711Z"
+    },
+    "carmen-n-de-la-rosa": {
+      "slug": "carmen-n-de-la-rosa",
+      "personId": 7806,
+      "fullName": "Carmen N. De La Rosa",
+      "www": "https://council.nyc.gov/carmen-de-la-rosa/",
+      "source_file": "people/carmen-n-de-la-rosa.json",
+      "sha": "3aa4122544a7c773d3ce4ea6ba64c7cd40049d1a",
+      "fetched_at": "2025-10-29T15:58:28.722Z"
+    },
+    "tiffany-caban": {
+      "slug": "tiffany-caban",
+      "personId": 7813,
+      "fullName": "Tiffany Cabán",
+      "www": "https://council.nyc.gov/tiffany-caban/",
+      "source_file": "people/tiffany-caban.json",
+      "sha": "9c8147c570594fbca0fbd4e9fa5a9fff46f7adfb",
+      "fetched_at": "2025-10-29T15:58:28.722Z"
+    },
+    "rafael-salamanca-jr": {
+      "slug": "rafael-salamanca-jr",
+      "personId": 7714,
+      "fullName": "Rafael Salamanca, Jr.",
+      "www": "http://council.nyc.gov/d17/html/members/home.shtml",
+      "source_file": "people/rafael-salamanca-jr.json",
+      "sha": "fc7029177c469a0cf6fb5f04e30703f8f3569939",
+      "fetched_at": "2025-10-29T15:58:28.722Z"
+    },
+    "simcha-felder": {
+      "slug": "simcha-felder",
+      "personId": 5289,
+      "fullName": "Simcha Felder",
+      "www": "http://council.nyc.gov/d44/html/members/home.shtml",
+      "source_file": "people/simcha-felder.json",
+      "sha": "dcb813cd48d60e8c89b50fd220eccbc736b6497d",
+      "fetched_at": "2025-10-29T15:58:28.722Z"
+    },
+    "vickie-paladino": {
+      "slug": "vickie-paladino",
+      "personId": 7811,
+      "fullName": "Vickie Paladino",
+      "www": "https://council.nyc.gov/vickie-paladino/",
+      "source_file": "people/vickie-paladino.json",
+      "sha": "2250ef4b283791247b7b54aea6b5ad8df274cd67",
+      "fetched_at": "2025-10-29T15:58:28.722Z"
+    },
+    "alexa-aviles": {
+      "slug": "alexa-aviles",
+      "personId": 7825,
+      "fullName": "Alexa Avilés",
+      "www": "https://council.nyc.gov/alexa-aviles/",
+      "source_file": "people/alexa-aviles.json",
+      "sha": "20487114f8aceb2892e27040ed5243263128cdeb",
+      "fetched_at": "2025-10-29T15:58:28.726Z"
+    },
+    "oswald-feliz": {
+      "slug": "oswald-feliz",
+      "personId": 7798,
+      "fullName": "Oswald Feliz",
+      "www": "https://council.nyc.gov/district-15/",
+      "source_file": "people/oswald-feliz.json",
+      "sha": "814fa42c4bc1465c8e2911b03d60b287d8c46d6a",
+      "fetched_at": "2025-10-29T15:58:28.727Z"
+    },
+    "shaun-abreu": {
+      "slug": "shaun-abreu",
+      "personId": 7804,
+      "fullName": "Shaun Abreu",
+      "www": "https://council.nyc.gov/shaun-abreu/",
+      "source_file": "people/shaun-abreu.json",
+      "sha": "2481e3b73529cdcdd710da7b60023e3ba1650b5e",
+      "fetched_at": "2025-10-29T15:58:28.732Z"
+    },
+    "rita-c-joseph": {
+      "slug": "rita-c-joseph",
+      "personId": 7827,
+      "fullName": "Rita C. Joseph",
+      "www": "https://council.nyc.gov/rita-joseph/",
+      "source_file": "people/rita-c-joseph.json",
+      "sha": "ad4f7743383d42d749b0d072f2b319b08e3ddb08",
+      "fetched_at": "2025-10-29T15:58:28.732Z"
+    },
+    "darlene-mealy": {
+      "slug": "darlene-mealy",
+      "personId": 6272,
+      "fullName": "Darlene Mealy",
+      "www": "https://council.nyc.gov/district-41/",
+      "source_file": "people/darlene-mealy.json",
+      "sha": "57e1326ec9dd164c188d6d4e0b4b971e7a34a00d",
+      "fetched_at": "2025-10-29T15:58:28.734Z"
+    },
+    "diana-i-ayala": {
+      "slug": "diana-i-ayala",
+      "personId": 7742,
+      "fullName": "Diana I. Ayala",
+      "www": "https://council.nyc.gov/district-8/",
+      "source_file": "people/diana-i-ayala.json",
+      "sha": "0a052fe68e00e3f18cef12138b2b735fb328bf84",
+      "fetched_at": "2025-10-29T15:58:28.736Z"
+    },
+    "kevin-c-riley": {
+      "slug": "kevin-c-riley",
+      "personId": 7794,
+      "fullName": "Kevin C. Riley",
+      "www": "https://council.nyc.gov/district-12/",
+      "source_file": "people/kevin-c-riley.json",
+      "sha": "3cecb3e60b06e7be0c73a25c4bf20483e4492b31",
+      "fetched_at": "2025-10-29T15:58:28.740Z"
+    },
+    "kristy-marmorato": {
+      "slug": "kristy-marmorato",
+      "personId": 7865,
+      "fullName": "Kristy Marmorato",
+      "www": "https://council.nyc.gov/district-13/",
+      "source_file": "people/kristy-marmorato.json",
+      "sha": "2d6b97be6055e8a98b1bae82a6112c6b1f96a233",
+      "fetched_at": "2025-10-29T15:58:28.740Z"
+    },
+    "shekar-krishnan": {
+      "slug": "shekar-krishnan",
+      "personId": 7815,
+      "fullName": "Shekar Krishnan",
+      "www": "https://council.nyc.gov/district-25/",
+      "source_file": "people/shekar-krishnan.json",
+      "sha": "4a870511ed7952337d7461445d528d0ce440dcc0",
+      "fetched_at": "2025-10-29T15:58:28.741Z"
+    },
+    "robert-f-holden": {
+      "slug": "robert-f-holden",
+      "personId": 7746,
+      "fullName": "Robert F. Holden",
+      "www": "https://council.nyc.gov/robert-holden/",
+      "source_file": "people/robert-f-holden.json",
+      "sha": "7bb82b294aa68695ffc7925178cdb7ddb8c5e20d",
+      "fetched_at": "2025-10-29T15:58:28.742Z"
+    },
+    "farah-n-louis": {
+      "slug": "farah-n-louis",
+      "personId": 7785,
+      "fullName": "Farah N. Louis",
+      "www": "https://council.nyc.gov/farah-louis/",
+      "source_file": "people/farah-n-louis.json",
+      "sha": "01dc5ede094989f8b833d51d7b0ff3f69519209c",
+      "fetched_at": "2025-10-29T15:58:28.744Z"
+    },
+    "yusef-salaam": {
+      "slug": "yusef-salaam",
+      "personId": 7866,
+      "fullName": "Yusef Salaam",
+      "www": "https://council.nyc.gov/district-9/",
+      "source_file": "people/yusef-salaam.json",
+      "sha": "bd71d577fe0f2cb40e7d34a31c22a236c24472fb",
+      "fetched_at": "2025-10-29T15:58:28.744Z"
+    },
+    "frank-morano": {
+      "slug": "frank-morano",
+      "personId": 7887,
+      "fullName": "Frank Morano",
+      "www": null,
+      "source_file": "people/frank-morano.json",
+      "sha": "ebef595cf8443adfb7ea03afbc7a5e2c1ea6dd1f",
+      "fetched_at": "2025-10-29T15:58:28.744Z"
+    },
+    "erik-d-bottcher": {
+      "slug": "erik-d-bottcher",
+      "personId": 7802,
+      "fullName": "Erik D. Bottcher",
+      "www": "https://council.nyc.gov/erik-bottcher/",
+      "source_file": "people/erik-d-bottcher.json",
+      "sha": "30ab5d326587b90447fa34657244bdd84cab77fd",
+      "fetched_at": "2025-10-29T15:58:28.744Z"
+    },
+    "joann-ariola": {
+      "slug": "joann-ariola",
+      "personId": 7819,
+      "fullName": "Joann Ariola",
+      "www": "https://council.nyc.gov/joann-ariola/",
+      "source_file": "people/joann-ariola.json",
+      "sha": "067858f3cec33828bf21937f63a32003a6c239b7",
+      "fetched_at": "2025-10-29T15:58:28.746Z"
+    },
+    "shahana-k-hanif": {
+      "slug": "shahana-k-hanif",
+      "personId": 7826,
+      "fullName": "Shahana K. Hanif",
+      "www": "https://council.nyc.gov/shahana-hanif/",
+      "source_file": "people/shahana-k-hanif.json",
+      "sha": "15b961673e57939b275efd19c7ac48cbf7a9763a",
+      "fetched_at": "2025-10-29T15:58:28.747Z"
+    },
+    "julie-menin": {
+      "slug": "julie-menin",
+      "personId": 7803,
+      "fullName": "Julie Menin",
+      "www": "https://council.nyc.gov/district-5/",
+      "source_file": "people/julie-menin.json",
+      "sha": "05b5ce1aebefc113353703690c7acb1fb34624f7",
+      "fetched_at": "2025-10-29T15:58:28.750Z"
+    },
+    "keith-powers": {
+      "slug": "keith-powers",
+      "personId": 7741,
+      "fullName": "Keith Powers",
+      "www": "https://council.nyc.gov/district-4/",
+      "source_file": "people/keith-powers.json",
+      "sha": "488e5d6c61d2cd0a643d6dedd646977c8ac7eff4",
+      "fetched_at": "2025-10-29T15:58:28.754Z"
+    },
+    "crystal-hudson": {
+      "slug": "crystal-hudson",
+      "personId": 7822,
+      "fullName": "Crystal Hudson",
+      "www": "https://council.nyc.gov/crystal-hudson/",
+      "source_file": "people/crystal-hudson.json",
+      "sha": "7aedb61989aba7952b7cc32fc78cf83bfd6c6bad",
+      "fetched_at": "2025-10-29T15:58:28.754Z"
+    },
+    "linda-lee": {
+      "slug": "linda-lee",
+      "personId": 7814,
+      "fullName": "Linda Lee",
+      "www": "https://council.nyc.gov/linda-lee/",
+      "source_file": "people/linda-lee.json",
+      "sha": "68f96de23608203e81c7125fe50f1864daf6bc15",
+      "fetched_at": "2025-10-29T15:58:28.758Z"
+    },
+    "sandy-nurse": {
+      "slug": "sandy-nurse",
+      "personId": 7824,
+      "fullName": "Sandy Nurse",
+      "www": "https://council.nyc.gov/district-37/",
+      "source_file": "people/sandy-nurse.json",
+      "sha": "04c92ebcb394b4a2bc1b04aa6bd783b49ee92790",
+      "fetched_at": "2025-10-29T15:58:28.758Z"
+    },
+    "adrienne-e-adams": {
+      "slug": "adrienne-e-adams",
+      "personId": 7739,
+      "fullName": "Adrienne E. Adams",
+      "www": "https://council.nyc.gov/district-28/",
+      "source_file": "people/adrienne-e-adams.json",
+      "sha": "c81a7b5de8065021d6f4936a368610cce36bd651",
+      "fetched_at": "2025-10-29T15:58:28.758Z"
+    },
+    "lincoln-restler": {
+      "slug": "lincoln-restler",
+      "personId": 7820,
+      "fullName": "Lincoln Restler",
+      "www": "https://council.nyc.gov/lincoln-restler/",
+      "source_file": "people/lincoln-restler.json",
+      "sha": "8863c8d1a8c982cd5431557f6747d6cc17084aaa",
+      "fetched_at": "2025-10-29T15:58:28.762Z"
+    },
+    "gale-a-brewer": {
+      "slug": "gale-a-brewer",
+      "personId": 5259,
+      "fullName": "Gale A. Brewer",
+      "www": "http://council.nyc.gov/d6/html/members/home.shtml",
+      "source_file": "people/gale-a-brewer.json",
+      "sha": "74392922f923f67c3a5ae3c7f31bd985c9e14c78",
+      "fetched_at": "2025-10-29T15:58:28.762Z"
+    },
+    "chris-banks": {
+      "slug": "chris-banks",
+      "personId": 7864,
+      "fullName": "Chris Banks",
+      "www": "https://council.nyc.gov/district-42/",
+      "source_file": "people/chris-banks.json",
+      "sha": "ed905d56e946b976f5cc0f337dc410da06edf91a",
+      "fetched_at": "2025-10-29T15:58:28.762Z"
+    },
+    "jennifer-gutierrez": {
+      "slug": "jennifer-gutierrez",
+      "personId": 7821,
+      "fullName": "Jennifer Gutiérrez",
+      "www": "https://council.nyc.gov/district-34/",
+      "source_file": "people/jennifer-gutierrez.json",
+      "sha": "f7eaddc56ad76a74e11879d07caec0b3d33f2261",
+      "fetched_at": "2025-10-29T15:58:28.762Z"
+    },
+    "david-m-carr": {
+      "slug": "david-m-carr",
+      "personId": 7833,
+      "fullName": "David M. Carr",
+      "www": "https://council.nyc.gov/david-carr/",
+      "source_file": "people/david-m-carr.json",
+      "sha": "c226c8c21cf08f2cbc90a9d063ac7ba7e284b30e",
+      "fetched_at": "2025-10-29T15:58:28.762Z"
+    },
+    "kamillah-hanks": {
+      "slug": "kamillah-hanks",
+      "personId": 7832,
+      "fullName": "Kamillah Hanks",
+      "www": "https://council.nyc.gov/kamillah-hanks/",
+      "source_file": "people/kamillah-hanks.json",
+      "sha": "49a6bcd1f28d016b2acbef07156a6bb8925246aa",
+      "fetched_at": "2025-10-29T15:58:28.763Z"
+    },
+    "justin-l-brannan": {
+      "slug": "justin-l-brannan",
+      "personId": 7748,
+      "fullName": "Justin L. Brannan",
+      "www": "https://council.nyc.gov/justin-brannan/",
+      "source_file": "people/justin-l-brannan.json",
+      "sha": "0eaa2e5a69a70ba7f3b52bd8799223e392642d70",
+      "fetched_at": "2025-10-29T15:58:28.765Z"
+    },
+    "christopher-marte": {
+      "slug": "christopher-marte",
+      "personId": 7801,
+      "fullName": "Christopher Marte",
+      "www": "https://council.nyc.gov/christopher-marte/",
+      "source_file": "people/christopher-marte.json",
+      "sha": "f8d355b999fc8f6ced8a08be73ffe78286bafb3a",
+      "fetched_at": "2025-10-29T15:58:28.768Z"
+    },
+    "amanda-farias": {
+      "slug": "amanda-farias",
+      "personId": 7810,
+      "fullName": "Amanda Farías",
+      "www": "https://council.nyc.gov/amanda-farias/",
+      "source_file": "people/amanda-farias.json",
+      "sha": "5c15133d1aa763d2c90e8ec5a9ca9adc06cdbae7",
+      "fetched_at": "2025-10-29T15:58:28.774Z"
+    },
+    "nantasha-m-williams": {
+      "slug": "nantasha-m-williams",
+      "personId": 7817,
+      "fullName": "Nantasha M. Williams",
+      "www": "https://council.nyc.gov/nantasha-williams/",
+      "source_file": "people/nantasha-m-williams.json",
+      "sha": "4262e92e0fd9b92d1562841fd7d8732d0b509201",
+      "fetched_at": "2025-10-29T15:58:28.775Z"
+    },
+    "althea-v-stevens": {
+      "slug": "althea-v-stevens",
+      "personId": 7809,
+      "fullName": "Althea V.  Stevens",
+      "www": "https://council.nyc.gov/district-16/",
+      "source_file": "people/althea-v-stevens.json",
+      "sha": "0fb6568b32d2f8c6d35e6d8f67e85bfc4d099fb1",
+      "fetched_at": "2025-10-29T15:58:28.778Z"
+    },
+    "inna-vernikov": {
+      "slug": "inna-vernikov",
+      "personId": 7831,
+      "fullName": "Inna Vernikov",
+      "www": "https://council.nyc.gov/inna-vernikov/",
+      "source_file": "people/inna-vernikov.json",
+      "sha": "b62a0dc40ea88570aac60aaa8d57a6553066795b",
+      "fetched_at": "2025-10-29T15:58:28.778Z"
+    },
+    "chi-a-osse": {
+      "slug": "chi-a-osse",
+      "personId": 7823,
+      "fullName": "Chi A. Ossé",
+      "www": "https://council.nyc.gov/district-36/",
+      "source_file": "people/chi-a-osse.json",
+      "sha": "03dfc29ba63204bc5986b2ddfee3f06f9cc73b39",
+      "fetched_at": "2025-10-29T15:58:28.778Z"
+    },
+    "james-f-gennaro": {
+      "slug": "james-f-gennaro",
+      "personId": 5273,
+      "fullName": "James F. Gennaro",
+      "www": "http://council.nyc.gov/d24/html/members/home.shtml",
+      "source_file": "people/james-f-gennaro.json",
+      "sha": "c19d1d4d1693dab48ec675c16d1d02c27d2cfa79",
+      "fetched_at": "2025-10-29T15:58:28.779Z"
+    },
+    "lynn-c-schulman": {
+      "slug": "lynn-c-schulman",
+      "personId": 7818,
+      "fullName": "Lynn C. Schulman",
+      "www": "https://council.nyc.gov/district-29/",
+      "source_file": "people/lynn-c-schulman.json",
+      "sha": "efac13f6d943bff0ef442dad554bc7a7e6c0ce48",
+      "fetched_at": "2025-10-29T15:58:28.783Z"
+    },
+    "pierina-ana-sanchez": {
+      "slug": "pierina-ana-sanchez",
+      "personId": 7808,
+      "fullName": "Pierina Ana Sanchez",
+      "www": "https://council.nyc.gov/pierina-ana-sanchez/",
+      "source_file": "people/pierina-ana-sanchez.json",
+      "sha": "279f74bd5c6742c8d2abcb4934c28e1d425c1673",
+      "fetched_at": "2025-10-29T15:58:28.795Z"
+    },
+    "mercedes-narcisse": {
+      "slug": "mercedes-narcisse",
+      "personId": 7829,
+      "fullName": "Mercedes Narcisse",
+      "www": "https://council.nyc.gov/mercedes-narcisse/",
+      "source_file": "people/mercedes-narcisse.json",
+      "sha": "164cd13292c31715586e4351af790205baa9870b",
+      "fetched_at": "2025-10-29T15:58:28.795Z"
+    },
+    "eric-dinowitz": {
+      "slug": "eric-dinowitz",
+      "personId": 7799,
+      "fullName": "Eric Dinowitz",
+      "www": "https://council.nyc.gov/district-11/",
+      "source_file": "people/eric-dinowitz.json",
+      "sha": "6e8a1d314c5ac8c6fa06fe80cde58b369efd97a1",
+      "fetched_at": "2025-10-29T15:58:28.799Z"
+    },
+    "francisco-p-moya": {
+      "slug": "francisco-p-moya",
+      "personId": 7745,
+      "fullName": "Francisco P. Moya",
+      "www": "https://council.nyc.gov/district-21/",
+      "source_file": "people/francisco-p-moya.json",
+      "sha": "58da07195738b116ab628053a24511d6b0574d9f",
+      "fetched_at": "2025-10-29T15:58:28.808Z"
+    },
+    "susan-zhuang": {
+      "slug": "susan-zhuang",
+      "personId": 7867,
+      "fullName": "Susan Zhuang",
+      "www": "https://council.nyc.gov/district-43/",
+      "source_file": "people/susan-zhuang.json",
+      "sha": "8552ba8fa8a50ab95eb7df6c11380cd2ef0a2015",
+      "fetched_at": "2025-10-29T15:58:28.813Z"
+    },
+    "selvena-n-brooks-powers": {
+      "slug": "selvena-n-brooks-powers",
+      "personId": 7796,
+      "fullName": "Selvena N. Brooks-Powers",
+      "www": "https://council.nyc.gov/selvena-brooks-powers/",
+      "source_file": "people/selvena-n-brooks-powers.json",
+      "sha": "af44c42ea03614983366d90a9026f95259a3fa32",
+      "fetched_at": "2025-10-29T15:58:28.821Z"
+    },
+    "carlina-rivera": {
+      "slug": "carlina-rivera",
+      "personId": 7740,
+      "fullName": "Carlina Rivera",
+      "www": "https://council.nyc.gov/district-2/",
+      "source_file": "people/carlina-rivera.json",
+      "sha": "0647fb9f51c88f71d752067835873a3dfc49b862",
+      "fetched_at": "2025-10-29T16:24:17.671Z"
+    }
+  }
+}

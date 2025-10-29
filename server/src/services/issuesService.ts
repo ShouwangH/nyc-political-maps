@@ -1,6 +1,10 @@
+// ABOUTME: Normalizes introduction vote data and exposes API-friendly issue/vote payloads.
+// ABOUTME: Inputs = cached GitHub datasets + Legistar mappings, Outputs = issue lists and vote distributions.
 import {
+  CACHE_MAX_AGE_MS,
   ISSUE_CACHE_TTL_MS,
-  VOTE_CACHE_TTL_MS
+  VOTE_CACHE_TTL_MS,
+  GITHUB_REPO
 } from '../config';
 import {
   listIntroductionFiles,
@@ -8,16 +12,29 @@ import {
   type IntroductionFileDescriptor
 } from './nycLegislationSource';
 import {
+  readCachedIssuesFile,
+  writeCachedIssuesFile,
+  type CachedIssueEntry
+} from './cacheService';
+import {
   getPersonDistrictMap,
   listDistrictIds
 } from './districtService';
+import {
+  getPersonProfileById,
+  getPersonProfileBySlug,
+  type PersonProfile
+} from './personService';
 import type {
   IntroductionHistoryEntry,
   IntroductionRecord,
   IntroductionVoteEntry,
+  SponsorEntry,
   IssueVotesResponse,
   NormalizedIssue,
   RollCallVote,
+  DistrictVoteDetail,
+  VoteActionContext,
   VoteDistribution,
   VoteStatus
 } from '../types';
@@ -50,14 +67,21 @@ export async function getIssueVotes(matterId: number): Promise<IssueVotesRespons
 
   const detail = await ensureIssueDetail(matterId);
   const introduction = await loadIntroductionRecord(detail);
-  const voteEntry = selectLatestVoteEntry(introduction);
+  const voteEntries = getVoteEntries(introduction);
 
-  if (!voteEntry) {
+  if (!voteEntries.length) {
     throw new Error('No roll-call vote recorded for the selected matter.');
   }
 
   const districtMap = await getPersonDistrictMap();
-  const distribution = buildVoteDistribution(voteEntry, districtMap);
+  const sponsorLookup = buildSponsorLookup(introduction);
+  const primaryAction = voteEntries[0] ?? null;
+  const distribution = await buildVoteDistribution(
+    voteEntries,
+    districtMap,
+    sponsorLookup,
+    primaryAction
+  );
 
   const response: IssueVotesResponse = {
     issue: toPublicIssue(detail),
@@ -79,10 +103,48 @@ async function loadIssues(): Promise<IssueDetail[]> {
   }
 
   introductionCache.clear();
-  const issues = await fetchIssuesFromGitHub(ISSUE_LIMIT);
-  if (!issues.length) {
+
+  const cachedFile = await readCachedIssuesFile().catch(() => null);
+  if (cachedFile) {
+    const fetchedAt = Date.parse(cachedFile.fetched_at ?? '');
+    if (!Number.isNaN(fetchedAt) && now - fetchedAt <= CACHE_MAX_AGE_MS) {
+      const cachedIssues = buildIssuesFromEntries(
+        cachedFile.entries,
+        now + ISSUE_CACHE_TTL_MS
+      );
+      if (cachedIssues.length) {
+        issuesCache = {
+          data: cachedIssues,
+          expiresAt: now + ISSUE_CACHE_TTL_MS
+        };
+        issueIndex.clear();
+        cachedIssues.forEach((issue) => issueIndex.set(issue.matterId, issue));
+        return cachedIssues;
+      }
+    }
+  }
+
+  const entries = await fetchIssuesFromGitHub(ISSUE_LIMIT);
+  if (!entries.length) {
     throw new Error('No roll-call votes could be retrieved from the nyc_legislation dataset.');
   }
+
+  const issues = buildIssuesFromEntries(entries, now + ISSUE_CACHE_TTL_MS);
+  if (!issues.length) {
+    throw new Error('Unable to normalize roll-call votes from the nyc_legislation dataset.');
+  }
+
+  const fetchedAt = new Date().toISOString();
+  const commit = entries.find((entry) => entry.sha)?.sha ?? null;
+  await writeCachedIssuesFile({
+    source: `https://github.com/${GITHUB_REPO}`,
+    fetched_at: fetchedAt,
+    commit,
+    entries
+  }).catch((error) => {
+    // eslint-disable-next-line no-console
+    console.warn('[issues] Failed to write cache file', error);
+  });
 
   issuesCache = {
     data: issues,
@@ -111,8 +173,8 @@ async function ensureIssueDetail(matterId: number): Promise<IssueDetail> {
   return detail;
 }
 
-async function fetchIssuesFromGitHub(limit: number): Promise<IssueDetail[]> {
-  const collected: IssueDetail[] = [];
+async function fetchIssuesFromGitHub(limit: number): Promise<CachedIssueEntry[]> {
+  const collected: CachedIssueEntry[] = [];
 
   for (const year of INTRODUCTION_YEARS) {
     try {
@@ -128,16 +190,17 @@ async function fetchIssuesFromGitHub(limit: number): Promise<IssueDetail[]> {
 
         try {
           const record = await fetchIntroductionFile(file);
-          const voteEntry = selectLatestVoteEntry(record);
-          if (!voteEntry) {
+          const voteEntries = getVoteEntries(record);
+          if (!voteEntries.length) {
             continue;
           }
 
-          const detail = buildIssueDetail(record, voteEntry, year, file);
-          collected.push(detail);
-          introductionCache.set(record.ID, {
-            data: record,
-            expiresAt: Date.now() + ISSUE_CACHE_TTL_MS
+          collected.push({
+            year,
+            file: file.name,
+            downloadUrl: file.downloadUrl,
+            sha: file.sha ?? null,
+            record
           });
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -159,7 +222,7 @@ async function fetchIssuesFromGitHub(limit: number): Promise<IssueDetail[]> {
 
 function buildIssueDetail(
   record: IntroductionRecord,
-  voteEntry: IntroductionHistoryEntry,
+  primaryEntry: IntroductionHistoryEntry & { Votes: IntroductionVoteEntry[] },
   year: number,
   file: IntroductionFileDescriptor
 ): IssueDetail {
@@ -169,13 +232,42 @@ function buildIssueDetail(
     name: record.Name ?? record.Title ?? record.File ?? `Matter ${record.ID}`,
     title: record.Title ?? record.Name ?? null,
     status: record.StatusName ?? 'Unknown',
-    passedDate: record.PassedDate ?? voteEntry.Date ?? null,
-    eventId: typeof voteEntry.EventID === 'number' ? voteEntry.EventID : 0,
-    eventDate: voteEntry.Date ?? record.PassedDate ?? null,
+    passedDate: record.PassedDate ?? primaryEntry.Date ?? null,
+    eventId: typeof primaryEntry.EventID === 'number' ? primaryEntry.EventID : 0,
+    eventDate: primaryEntry.Date ?? record.PassedDate ?? null,
     sourceYear: year,
     sourceFile: file.name,
     sourceDownloadUrl: file.downloadUrl
   };
+}
+
+function buildIssuesFromEntries(
+  entries: CachedIssueEntry[],
+  introductionExpiry: number
+): IssueDetail[] {
+  const issues: IssueDetail[] = [];
+
+  for (const entry of entries) {
+    const voteEntries = getVoteEntries(entry.record);
+    if (!voteEntries.length) {
+      continue;
+    }
+
+    const descriptor: IntroductionFileDescriptor = {
+      name: entry.file,
+      downloadUrl: entry.downloadUrl,
+      sha: entry.sha ?? null
+    };
+
+    const detail = buildIssueDetail(entry.record, voteEntries[0], entry.year, descriptor);
+    issues.push(detail);
+    introductionCache.set(entry.record.ID, {
+      data: entry.record,
+      expiresAt: introductionExpiry
+    });
+  }
+
+  return issues;
 }
 
 function toPublicIssue(detail: IssueDetail): NormalizedIssue {
@@ -204,29 +296,46 @@ async function loadIntroductionRecord(detail: IssueDetail): Promise<Introduction
   return record;
 }
 
-function selectLatestVoteEntry(
+function getVoteEntries(
   record: IntroductionRecord
-): (IntroductionHistoryEntry & { Votes: IntroductionVoteEntry[] }) | null {
+): Array<IntroductionHistoryEntry & { Votes: IntroductionVoteEntry[] }> {
   const history = Array.isArray(record.History) ? record.History : [];
-  if (!history.length) {
-    return null;
+  const entries = history.filter(hasVotes) as Array<
+    IntroductionHistoryEntry & { Votes: IntroductionVoteEntry[] }
+  >;
+  return entries.sort(compareVoteEntries);
+}
+
+function compareVoteEntries(
+  a: IntroductionHistoryEntry,
+  b: IntroductionHistoryEntry
+): number {
+  const priorityA = getEntryPriority(a);
+  const priorityB = getEntryPriority(b);
+  if (priorityA.tier !== priorityB.tier) {
+    return priorityA.tier - priorityB.tier;
   }
+  return priorityB.timestamp - priorityA.timestamp;
+}
 
-  const reversed = [...history].reverse();
+function getEntryPriority(entry: IntroductionHistoryEntry): { tier: number; timestamp: number } {
+  const body = (entry.BodyName ?? '').toLowerCase();
+  const action = (entry.Action ?? '').toLowerCase();
+  const timestamp = parseDate(entry.Date)?.getTime() ?? 0;
 
-  for (const entry of reversed) {
-    if (hasVotes(entry) && bodyIsCouncil(entry)) {
-      return entry;
-    }
+  if (body.includes('city council')) {
+    return { tier: 0, timestamp };
   }
-
-  for (const entry of reversed) {
-    if (hasVotes(entry)) {
-      return entry;
-    }
+  if (action.includes('approved by council') || action.includes('adopted by council')) {
+    return { tier: 0, timestamp };
   }
-
-  return null;
+  if (body.includes('committee') && action.includes('approved')) {
+    return { tier: 1, timestamp };
+  }
+  if (body.includes('committee')) {
+    return { tier: 2, timestamp };
+  }
+  return { tier: 3, timestamp };
 }
 
 function hasVotes(entry: IntroductionHistoryEntry): entry is IntroductionHistoryEntry & {
@@ -235,40 +344,219 @@ function hasVotes(entry: IntroductionHistoryEntry): entry is IntroductionHistory
   return Array.isArray(entry.Votes) && entry.Votes.length > 0;
 }
 
-function bodyIsCouncil(entry: IntroductionHistoryEntry): boolean {
-  return (entry.BodyName ?? '').toLowerCase().includes('city council');
+interface AggregatedVote {
+  personId: number;
+  slug: string | null;
+  fullName: string;
+  vote: VoteStatus;
+  rawValue: string;
 }
 
-function buildVoteDistribution(
-  voteEntry: IntroductionHistoryEntry & { Votes: IntroductionVoteEntry[] },
-  districtMap: Map<number, string>
-): VoteDistribution {
+interface SponsorLookup {
+  ids: Set<number>;
+  slugs: Set<string>;
+  names: Set<string>;
+}
+
+function aggregateVotes(
+  entries: Array<IntroductionHistoryEntry & { Votes: IntroductionVoteEntry[] }>
+): AggregatedVote[] {
+  const aggregated = new Map<string, {
+    personId: number;
+    slug: string | null;
+    fullName: string;
+    vote: VoteStatus;
+    rawValue: string;
+  }>();
+
+  for (const entry of entries) {
+    for (const vote of entry.Votes) {
+      const key = getVoteKey(vote);
+      if (!key) {
+        continue;
+      }
+
+      if (aggregated.has(key)) {
+        continue;
+      }
+
+      aggregated.set(key, {
+        personId: typeof vote.ID === 'number' ? vote.ID : -1,
+        slug: vote.Slug ?? null,
+        fullName: vote.FullName ?? 'Unknown',
+        vote: normalizeVote(vote.Vote),
+        rawValue: vote.Vote ?? 'Unknown'
+      });
+    }
+  }
+
+  return Array.from(aggregated.values());
+}
+
+function getVoteKey(vote: IntroductionVoteEntry): string | null {
+  if (typeof vote.ID === 'number') {
+    return `id:${vote.ID}`;
+  }
+  if (vote.Slug) {
+    return `slug:${vote.Slug}`;
+  }
+  if (vote.FullName) {
+    return `name:${vote.FullName.toLowerCase()}`;
+  }
+  return null;
+}
+
+function buildSponsorLookup(record: IntroductionRecord): SponsorLookup {
+  const sponsors = Array.isArray(record.Sponsors) ? record.Sponsors : [];
+  const ids = new Set<number>();
+  const slugs = new Set<string>();
+  const names = new Set<string>();
+
+  for (const sponsor of sponsors) {
+    if (typeof sponsor.ID === 'number') {
+      ids.add(sponsor.ID);
+    }
+    if (sponsor.Slug) {
+      slugs.add(sponsor.Slug.trim().toLowerCase());
+    }
+    if (sponsor.FullName) {
+      names.add(sponsor.FullName.trim().toLowerCase());
+    }
+  }
+
+  return { ids, slugs, names };
+}
+
+async function resolvePersonProfile(vote: AggregatedVote): Promise<PersonProfile | null> {
+  if (vote.personId >= 0) {
+    const profile = await getPersonProfileById(vote.personId, vote.slug);
+    if (profile) {
+      return profile;
+    }
+  }
+  if (vote.slug) {
+    return getPersonProfileBySlug(vote.slug);
+  }
+  return null;
+}
+
+function isSponsorVote(
+  vote: AggregatedVote,
+  lookup: SponsorLookup,
+  memberSlug: string | null,
+  memberName: string,
+  personId: number
+): boolean {
+  if (personId >= 0 && lookup.ids.has(personId)) {
+    return true;
+  }
+  if (memberSlug && lookup.slugs.has(memberSlug.trim().toLowerCase())) {
+    return true;
+  }
+  const normalizedVoteSlug = vote.slug ? vote.slug.trim().toLowerCase() : null;
+  if (normalizedVoteSlug && lookup.slugs.has(normalizedVoteSlug)) {
+    return true;
+  }
+  const normalizedName = memberName?.trim().toLowerCase();
+  if (normalizedName && lookup.names.has(normalizedName)) {
+    return true;
+  }
+  const normalizedVoteName = vote.fullName.trim().toLowerCase();
+  return lookup.names.has(normalizedVoteName);
+}
+
+function buildDistrictUrl(district: string | null): string | null {
+  if (!district) {
+    return null;
+  }
+  const normalized = district.trim();
+  if (!normalized) {
+    return null;
+  }
+  return `https://council.nyc.gov/district-${normalized}`;
+}
+
+function buildActionContext(
+  entry: (IntroductionHistoryEntry & { Votes: IntroductionVoteEntry[] }) | null
+): VoteActionContext {
+  if (!entry) {
+    return {
+      name: null,
+      body: null,
+      date: null
+    };
+  }
+  return {
+    name: entry.Action ?? null,
+    body: entry.BodyName ?? null,
+    date: entry.Date ?? null
+  };
+}
+
+async function buildVoteDistribution(
+  voteEntries: Array<IntroductionHistoryEntry & { Votes: IntroductionVoteEntry[] }>,
+  districtMap: Map<number, string>,
+  sponsorLookup: SponsorLookup,
+  actionEntry: (IntroductionHistoryEntry & { Votes: IntroductionVoteEntry[] }) | null
+): Promise<VoteDistribution> {
+  const aggregatedVotes = aggregateVotes(voteEntries);
+  const profiles = await Promise.all(
+    aggregatedVotes.map((vote) => resolvePersonProfile(vote))
+  );
+
   const districts: Record<string, VoteStatus> = {};
+  const districtDetails: Record<string, DistrictVoteDetail> = {};
   for (const id of listDistrictIds()) {
     districts[id] = 'Missing';
   }
 
-  const rollCall: RollCallVote[] = voteEntry.Votes.map((vote) => {
-    const personId = typeof vote.ID === 'number' ? vote.ID : -1;
-    const resolvedVote = normalizeVote(vote.Vote);
-    const district = personId >= 0 ? districtMap.get(personId) ?? null : null;
+  const rollCall: RollCallVote[] = [];
 
-    if (district && resolvedVote !== 'Missing') {
-      districts[district] = resolvedVote;
+  aggregatedVotes.forEach((vote, index) => {
+    const profile = profiles[index];
+    const normalizedId = profile?.personId ?? vote.personId;
+    const memberName = profile?.fullName ?? vote.fullName;
+    const memberSlug = profile?.slug ?? vote.slug ?? null;
+    const memberUrl = profile?.www ?? null;
+    const district = normalizedId >= 0 ? districtMap.get(normalizedId) ?? null : null;
+    const sponsor = isSponsorVote(vote, sponsorLookup, memberSlug, memberName, normalizedId);
+
+    if (district && vote.vote !== 'Missing') {
+      districts[district] = vote.vote;
     }
 
-    return {
-      personId,
-      personName: vote.FullName ?? 'Unknown',
-      district,
-      vote: resolvedVote,
-      rawValue: vote.Vote ?? 'Unknown'
+    const detail: DistrictVoteDetail = {
+      district: district ?? 'Unknown',
+      memberId: normalizedId,
+      memberName,
+      memberSlug,
+      memberUrl: memberUrl ?? buildDistrictUrl(district),
+      vote: vote.vote,
+      rawValue: vote.rawValue,
+      isSponsor: sponsor
     };
+
+    if (district) {
+      districtDetails[district] = detail;
+    }
+
+    rollCall.push({
+      personId: normalizedId,
+      personName: memberName,
+      personSlug: memberSlug,
+      memberUrl: detail.memberUrl,
+      isSponsor: sponsor,
+      district,
+      vote: vote.vote,
+      rawValue: vote.rawValue
+    });
   });
 
   return {
     districts,
     rollCall,
+    districtDetails,
+    action: buildActionContext(actionEntry),
     updatedAt: new Date().toISOString()
   };
 }
@@ -282,7 +570,8 @@ function normalizeVote(value: string | null | undefined): VoteStatus {
 
   if (
     normalized.includes('affirmative') ||
-    normalized === 'approved' ||
+    normalized.includes('approved') ||
+    normalized.includes('adopted') ||
     normalized === 'in favor' ||
     normalized === 'yes'
   ) {
@@ -291,17 +580,42 @@ function normalizeVote(value: string | null | undefined): VoteStatus {
 
   if (
     normalized.includes('negative') ||
+    normalized.includes('disapproved') ||
     normalized === 'no' ||
     normalized === 'against' ||
-    normalized === 'disapproved' ||
     normalized === 'nay'
   ) {
     return 'No';
   }
 
-  if (normalized.includes('abstain') || normalized === 'present') {
+  if (
+    normalized.includes('abstain') ||
+    normalized.includes('recuse') ||
+    normalized.includes('conflict')
+  ) {
     return 'Abstain';
   }
 
+  if (
+    normalized.includes('present') ||
+    normalized.includes('absent') ||
+    normalized.includes('medical') ||
+    normalized.includes('parental') ||
+    normalized.includes('bereavement') ||
+    normalized.includes('excused') ||
+    normalized.includes('maternity') ||
+    normalized.includes('jury duty')
+  ) {
+    return 'Missing';
+  }
+
   return 'Missing';
+}
+
+function parseDate(value: string | null | undefined): Date | null {
+  if (!value) {
+    return null;
+  }
+  const time = Date.parse(value);
+  return Number.isNaN(time) ? null : new Date(time);
 }

@@ -3,6 +3,7 @@
 /dist-client
 /server/dist
 /client/dist-types
+/data/nyc_legislation_cache.json
 /.idea
 /.vscode
 *.log
@@ -11,3 +12,7 @@
 tsconfig.tsbuildinfo
 /client/tsconfig.tsbuildinfo
 /server/tsconfig.tsbuildinfo
+AGENTS.md
+TODO.md
+Journal.md
+LegistarApi.md

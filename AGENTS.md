@@ -32,6 +32,72 @@ mvp: nyc city council vote visualization.
 6. enforce mvp focus: features must tie directly to demo value.
 7. future-proof but do not build future today.
 
+
+**Prime Directive**
+- If any rule needs an exception → **STOP** and ask Shouwang first.  
+  No silent overrides.
+
+**Autonomous Mode (demo)**
+- Enabled with `CODEX_AUTONOMOUS=true` or `--autonomous`.  
+- When a “must ask” rule triggers:  
+
+**Working Style**
+- Do it right, not fast. Systematic > clever. Be honest.  
+- Address Shouwang directly. Disagree with reasoning, not emotion.  
+- Discuss architecture before code unless trivial.
+
+**Decision Heuristics**
+- YAGNI first; design for extensibility only when cheap.  
+- Make smallest necessary change. Match local style. Remove duplication.  
+- Never rewrite or delete core logic without approval.
+
+**Testing (map scope)**
+- Smoke tests: `/health`, `/topojson`, `/issues`, `/votes`.  
+- Confirm:  
+  - topojson loads  
+  - vote JSON normalizes correctly  
+  - 3 districts color as expected  
+- Skip UI/tooltip tests unless requested.
+
+**Comments & Naming**
+- Names describe **what**, not **how/when**.  
+  e.g., `VoteFetcher`, `DistrictLayer`, `normalizeVotes()`.  
+- Each file starts with:
+// ABOUTME: purpose
+// ABOUTME: primary inputs/outputs
+
+- If file can’t hold comments (e.g. JSON), create `file.json.aboutme`.
+
+**Version Control**
+- Commit per major step; message = step heading.  
+- If local changes exist outside Codex edits → add TODO, proceed.
+
+**Tracking**
+- TODOs: append-only `TODO.md` with `[ ]`/`[x]` + ISO timestamp.  
+- Journal: `Journal/YYYY-MM-DD.md` entries like  
+`## HH:MM topic` → key points / lessons / decisions.
+
+**Debugging Loop**
+- Reproduce → read → hypothesize → minimal fix → verify → rollback if wrong.  
+Never stack speculative fixes.
+
+**Deterministic Defaults**
+- Runtime: Bun (fallback npm).  
+- Server port: `3000`.  
+- Client port: `5173`.  
+- Data: static JSON / TopoJSON only (no DB).  
+- Skip stretch features unless `CODEX_STRETCH=1`.
+
+**LLM Practices**
+- Show prompts in code when used. Structured JSON outputs only.  
+- Never suppress errors. Use modular prompt chains.  
+- Fixed temperature + schema for reproducibility.
+
+**Collaboration**
+- Be direct, analytical, and concise.  
+- Ask before changing architecture or data flow.  
+- Record all key lessons in the journal.
+
 ---
 
 ## non-negotiables (mvp)
@@ -42,7 +108,6 @@ mvp: nyc city council vote visualization.
 * map library: leaflet (polygon layer only)
 * geometry format: topojson served as static asset
 * join key: district number (string value)
-* server: in-memory cache only, **no database**
 * rollcall resolution: latest vote event wins
 * vote statuses: { Yes, No, Abstain, Missing }
 * colors: Yes=green, No=red, Abstain=yellow, Missing=gray
@@ -65,61 +130,34 @@ mvp: nyc city council vote visualization.
 
 ## execution_controls
 
-current_phase: 1
+## execution_controls (phase 2 — data correctness + ux polish)
 
-intent:
-Keep Codex tightly constrained — no speculative architecture, no scalability work.  
-Deliver only what is required for an end-to-end, demo-ready visualization using static assets and live Legistar fetches.
+current_phase: 2
 
----
+focus:
+- ensure vote data and member→district mappings are correct and reproducible
+- refine user experience (legend, loading/error states)
+- introduce light analytics for iteration feedback
 
-### action_scope
+allowed_actions:
+- normalize multiple rollcalls into one deterministic vote per issue
+- auto-map members to districts from reliable source
+- add legend, loading, and error UI states
+- capture minimal analytics events (no third-party trackers)
+- document data normalization assumptions inline
 
-**allowed_actions**
-- fetch and normalize Legistar vote + issue data directly from github repository intro.nyc
-- create a local store at /server/data for data fetched from repository so as to alleviate any hosting costs
-- convert existing shapefile → topojson (EPSG:4326)
-- serve static topojson via Express
-- render topojson polygons in Leaflet with color scale {Yes, No, Abstain, Missing}
-- hardcode minimal member→district mapping (JSON file acceptable)
-- create dropdown of issues populated from Legistar
-- implement single “recolor on issue change” interaction
-- deploy static + server bundle to staging (no build optimizations required)
+forbidden_actions:
+- introducing new frameworks, state managers, or caching layers
+- optimizing fetch logic beyond clarity or correctness
+- adding database or external storage beyond caching for GitHub content
+- building production metrics or auth systems
+- speculative refactors unrelated to current data correctness work
 
-**forbidden_actions**
-- creating reusable data pipelines or ETL layers
-- adding vector tiles, Mapbox, DeckGL, or tile servers
-- any tooltip, popup, legend, or analytics
-- introducing auth, user sessions, or feature flags
-- adding state management libraries (Redux, Zustand, etc.)
-- writing build-time scripts for shapefile processing (must run manually for now)
-- any “production hardening” (CDN, reverse proxy, etc.)
-
----
-
-### operating_rules
-1. All outputs must be **directly inspectable** (no opaque abstractions or generated code).
-2. Codegen proposals must include 1-sentence justification referencing the **phase goal**.
-3. Each new file or function must answer: *“Does this directly help render the map?”*
-4. If uncertain whether an action fits the phase, Codex must halt and emit:  
-   `⚠️ requires phase escalation`
-5. PRs may not expand action_scope without updating this section.
-
----
-
-### exit_criteria
-- topojson served and rendered correctly in browser map
-- at least 3 council districts recolor correctly for one issue
-- dropdown populates from Legistar API with real data
-- staging deployment loads externally with no runtime errors
-- client can interactively change issue and see vote recolor
-
----
-
-### transition_gate → phase 2
-- human review confirms correctness of Legistar integration
-- no hardcoded data beyond minimal mapping
-- visual + data integrity demonstrated live to client
+guardrails:
+- prioritize clarity over optimization
+- refactor only to improve data accuracy or readability
+- annotate normalization logic with assumptions and provenance
+- each file change must have a clear link to either data integrity or UX clarity
 
 
 ## roadmap
@@ -131,13 +169,13 @@ Deliver only what is required for an end-to-end, demo-ready visualization using 
 * pick join key between shapes and legistar (validate mapping for 3 districts)
 * commit static shapes into repo (public asset)
 
-### phase 1 — mvp product (end‑to‑end working demo)
+### phase 1 — mvp product (end‑to‑end working demo) ✅
 
-* ui: map + dropdown populated from legistar
+* ui: map + dropdown populated from live roll-call data (currently via [jehiah/nyc_legislation](https://github.com/jehiah/nyc_legislation))
 * server: fetch + normalize issues + votes (hardcoded member→district mapping ok)
 * color districts by vote outcome (yes/no/abstain/missing)
-* deploy to staging
-* data fallback: latest roll-call votes sourced from [jehiah/nyc_legislation](https://github.com/jehiah/nyc_legislation) until Legistar exposes current sessions
+* verified locally as staging proxy; ready for external host when needed
+* attribution: “Data from intro.nyc (Jehiah Czebotar), derived from NYC Council Legistar”
 
 **Known data limitation**: Legistar’s NYC tenant currently returns only late-1990s events for all query permutations (`startdate`, `$filter`, `$orderby`). Phase 1 therefore surfaces the latest available roll-call (historical) until a reliable path to present-day data is identified.
 
@@ -151,11 +189,27 @@ Deliver only what is required for an end-to-end, demo-ready visualization using 
 
 
 ### phase 2 — data correctness + ux polish
-
 * improve normalization: auto member→district mapping
 * unify multiple rollcalls → deterministic vote
 * add legend + loading/error states
+* good citizen: minimize load on `jehiah/nyc_legislation` mirror (local cache, metadata, <24h refresh)
 * basic analytics: log user interactions for iteration
+
+### good_citizen_note (data sourcing & caching)
+
+- respect upstream limits on public civic data
+- all data pulled from external sources (e.g. jehiah/nyc_legislation) **must be pre-cached locally**
+- fetch frequency: **no more than once per 24h**
+- write result to a local JSON file (`/data/*.json`)
+- include minimal metadata:
+
+  ```json
+  {
+    "source": "https://github.com/jehiah/nyc_legislation",
+    "fetched_at": "2025-10-29T12:00:00Z",
+    "commit": "abc123",
+    "file": "votes/votes.json"
+  }
 
 ### phase 3 — durability + performance
 
