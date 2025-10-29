@@ -9,7 +9,11 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "./dist-types",
+    "outDir": "./dist-types"
   },
   "include": ["src"]
 }

@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import L, { type GeoJSON as LeafletGeoJSON } from 'leaflet';
 import { feature } from 'topojson-client';
 import type { FeatureCollection, Feature } from 'geojson';
-import type { Topology } from 'topojson-specification';
 import type { VoteStatus } from '../types';
 
-type LoadState =
+type Topology = {
+  objects: Record<string, unknown>;
+};
+
+export type MapLoadState =
   | { type: 'idle' }
   | { type: 'loading' }
   | { type: 'ready' }
@@ -13,7 +16,7 @@ type LoadState =
 
 type LeafletMapProps = {
   votes: Record<string, VoteStatus>;
-  onStatusChange?: (state: LoadState) => void;
+  onStatusChange?: (state: MapLoadState) => void;
 };
 
 type DistrictFeature = Feature & {
@@ -59,7 +62,7 @@ export const LeafletMap = ({ votes, onStatusChange }: LeafletMapProps) => {
   const geoJsonLayerRef = useRef<LeafletGeoJSON<DistrictFeature> | null>(null);
 
   const [featureCollection, setFeatureCollection] = useState<FeatureCollection | null>(null);
-  const [loadState, setLoadState] = useState<LoadState>({ type: 'idle' });
+  const [loadState, setLoadState] = useState<MapLoadState>({ type: 'idle' });
 
   useEffect(() => {
     onStatusChange?.(loadState);
@@ -136,9 +139,11 @@ export const LeafletMap = ({ votes, onStatusChange }: LeafletMapProps) => {
       geoJsonLayerRef.current = null;
     }
 
-    geoJsonLayerRef.current = L.geoJSON<DistrictFeature>(featureCollection as any, {
-      style: (featureArg) => styleFeature(featureArg as DistrictFeature, votes)
-    }).addTo(map);
+    geoJsonLayerRef.current = L.geoJSON(featureCollection as unknown as any, {
+      style: (featureArg: Feature) => styleFeature(featureArg as DistrictFeature, votes)
+    }) as LeafletGeoJSON<DistrictFeature>;
+
+    geoJsonLayerRef.current.addTo(map);
 
     const bounds = geoJsonLayerRef.current.getBounds();
     if (bounds.isValid()) {

@@ -6,23 +6,119 @@ body,
 }
 
 body {
-  display: block; /* <-- not flex */
+  display: block;
+  background: radial-gradient(circle at center, #1e1e24, #0f0f10 70%);
+  color: #f5f5f5;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 .app {
   position: relative;
-  height: 100vh; /* <-- define vertical basis */
+  height: 100vh;
   width: 100vw;
+  overflow: hidden;
 }
 
 .map-container {
   height: 100%;
   width: 100%;
-  background: radial-gradient(circle at center, #1e1e24, #0f0f10 70%);
 }
 
 #map {
   height: 100%;
   width: 100%;
   position: relative;
+}
+
+.map-control-panel {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.9rem;
+  background: rgba(15, 15, 16, 0.85);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.4);
+  max-width: 320px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.map-control-panel header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.map-control-panel h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+
+.map-control-panel p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #d0d0d0;
+}
+
+.map-control-panel label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #c2c6d3;
+}
+
+.map-control-panel select {
+  padding: 0.55rem 0.6rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(22, 22, 26, 0.9);
+  color: #f5f5f5;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.map-control-panel select:focus {
+  border-color: rgba(161, 222, 255, 0.5);
+  box-shadow: 0 0 0 2px rgba(83, 169, 255, 0.25);
+}
+
+.map-control-panel select:disabled {
+  opacity: 0.6;
+}
+
+.issue-meta {
+  display: grid;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+}
+
+.issue-meta .label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9aa2b4;
+}
+
+.issue-meta span {
+  display: block;
+}
+
+.status-line {
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.6rem;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(34, 34, 38, 0.85);
+  color: #d0d4dd;
+}
+
+.status-line--error {
+  color: #ff9a9a;
+  border-color: rgba(255, 96, 96, 0.35);
+  background: rgba(68, 20, 20, 0.85);
 }

@@ -67,22 +67,60 @@ mvp: nyc city council vote visualization.
 
 current_phase: 1
 
-action_scope:
-allowed_actions:
-- convert shapefile → topojson (reproject to EPSG:4326)
-- verify district join key on sample (≥3 districts)
-- minimal leaflet polygon render using topojson
-- basic color mapping from static sample data
-forbidden_actions:
-- database introduction of any kind
-- vector tiles / tile server integration
-- tooltip implementation
-- caching beyond simple in-memory
-- ui polish beyond minimal usability
-exit_criteria:
-- topojson loads in browser map
-- 3 districts color correctly for one issue
-- deployed staging build accessible externally
+intent:
+Keep Codex tightly constrained — no speculative architecture, no scalability work.  
+Deliver only what is required for an end-to-end, demo-ready visualization using static assets and live Legistar fetches.
+
+---
+
+### action_scope
+
+**allowed_actions**
+- fetch and normalize Legistar vote + issue data directly from github repository intro.nyc
+- create a local store at /server/data for data fetched from repository so as to alleviate any hosting costs
+- convert existing shapefile → topojson (EPSG:4326)
+- serve static topojson via Express
+- render topojson polygons in Leaflet with color scale {Yes, No, Abstain, Missing}
+- hardcode minimal member→district mapping (JSON file acceptable)
+- create dropdown of issues populated from Legistar
+- implement single “recolor on issue change” interaction
+- deploy static + server bundle to staging (no build optimizations required)
+
+**forbidden_actions**
+- creating reusable data pipelines or ETL layers
+- adding vector tiles, Mapbox, DeckGL, or tile servers
+- any tooltip, popup, legend, or analytics
+- introducing auth, user sessions, or feature flags
+- adding state management libraries (Redux, Zustand, etc.)
+- writing build-time scripts for shapefile processing (must run manually for now)
+- any “production hardening” (CDN, reverse proxy, etc.)
+
+---
+
+### operating_rules
+1. All outputs must be **directly inspectable** (no opaque abstractions or generated code).
+2. Codegen proposals must include 1-sentence justification referencing the **phase goal**.
+3. Each new file or function must answer: *“Does this directly help render the map?”*
+4. If uncertain whether an action fits the phase, Codex must halt and emit:  
+   `⚠️ requires phase escalation`
+5. PRs may not expand action_scope without updating this section.
+
+---
+
+### exit_criteria
+- topojson served and rendered correctly in browser map
+- at least 3 council districts recolor correctly for one issue
+- dropdown populates from Legistar API with real data
+- staging deployment loads externally with no runtime errors
+- client can interactively change issue and see vote recolor
+
+---
+
+### transition_gate → phase 2
+- human review confirms correctness of Legistar integration
+- no hardcoded data beyond minimal mapping
+- visual + data integrity demonstrated live to client
+
 
 ## roadmap
 
@@ -99,6 +137,18 @@ exit_criteria:
 * server: fetch + normalize issues + votes (hardcoded member→district mapping ok)
 * color districts by vote outcome (yes/no/abstain/missing)
 * deploy to staging
+* data fallback: latest roll-call votes sourced from [jehiah/nyc_legislation](https://github.com/jehiah/nyc_legislation) until Legistar exposes current sessions
+
+**Known data limitation**: Legistar’s NYC tenant currently returns only late-1990s events for all query permutations (`startdate`, `$filter`, `$orderby`). Phase 1 therefore surfaces the latest available roll-call (historical) until a reliable path to present-day data is identified.
+
+**alternate data source (phase 1–2):**
+- intro.nyc (https://github.com/jehiah/intro.nyc)
+  - public Legistar mirror by Jehiah Czebotar
+  - nightly-updated CSV/JSON data of bills, votes, and members
+  - stable join keys and simplified structure
+  - use locally for deterministic MVP; replace with live Legistar API later
+  - attribution: “Data from intro.nyc (Jehiah Czebotar), derived from NYC Council Legistar”
+
 
 ### phase 2 — data correctness + ux polish
 
