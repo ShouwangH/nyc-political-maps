@@ -1,0 +1,28 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: block; /* <-- not flex */
+}
+
+.app {
+  position: relative;
+  height: 100vh; /* <-- define vertical basis */
+  width: 100vw;
+}
+
+.map-container {
+  height: 100%;
+  width: 100%;
+  background: radial-gradient(circle at center, #1e1e24, #0f0f10 70%);
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}

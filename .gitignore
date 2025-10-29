@@ -1,0 +1,7 @@
+/node_modules
+/dist
+/dist-client
+/.idea
+/.vscode
+*.log
+.DS_Store
