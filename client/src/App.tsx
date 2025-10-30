@@ -1,10 +1,23 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { LeafletMap, type MapLoadState } from './components/LeafletMap';
-import type { IssueSummary, VoteResponse, VoteStatus } from './types';
+import Legend, { buildLegendEntries } from './components/Legend';
+import type {
+  DistrictDetail,
+  IssueSummary,
+  VoteActionContext,
+  VoteResponse,
+  VoteStatus
+} from './types';
 
 type AsyncState = 'idle' | 'loading' | 'ready' | 'error';
 
 const DISTRICT_IDS = Array.from({ length: 51 }, (_, index) => String(index + 1));
+const VOTE_COLOR_SCALE: Record<VoteStatus, string> = {
+  Yes: '#2e8540',
+  No: '#c22',
+  Abstain: '#d4a017',
+  Missing: '#777'
+};
 
 const App = () => {
   const [mapStatus, setMapStatus] = useState<MapLoadState>({ type: 'idle' });
@@ -18,6 +31,8 @@ const App = () => {
   const [districtVotes, setDistrictVotes] = useState<Record<string, VoteStatus>>(
     createEmptyDistrictVotes()
   );
+  const [districtDetails, setDistrictDetails] = useState<Record<string, DistrictDetail>>({});
+  const [actionContext, setActionContext] = useState<VoteActionContext | null>(null);
   const [selectedIssueMeta, setSelectedIssueMeta] = useState<IssueSummary | null>(null);
 
   useEffect(() => {
@@ -56,6 +71,8 @@ const App = () => {
       setVotesState('loading');
       setVotesError(null);
       setDistrictVotes(createEmptyDistrictVotes());
+      setDistrictDetails({});
+      setActionContext(null);
       try {
         const response = await fetch(`/api/issues/${matterId}/votes`, {
           signal: controller.signal
@@ -65,6 +82,8 @@ const App = () => {
         }
         const payload: VoteResponse = await response.json();
         setDistrictVotes(mergeWithDefault(payload.votes.districts));
+        setDistrictDetails(payload.votes.districtDetails ?? {});
+        setActionContext(payload.votes.action ?? null);
         setSelectedIssueMeta(payload.issue);
         setVotesState('ready');
       } catch (error) {
@@ -97,10 +116,17 @@ const App = () => {
   );
 
   const statusMessage = buildStatusMessage({ issuesState, votesState, mapStatus, issuesError, votesError });
+  const legendEntries = useMemo(() => buildLegendEntries(VOTE_COLOR_SCALE), []);
+  const isIssuesLoading = issuesState === 'loading';
 
   return (
     <div className="app">
-      <LeafletMap votes={districtVotes} onStatusChange={handleMapStatus} />
+      <LeafletMap
+        votes={districtVotes}
+        districtDetails={districtDetails}
+        action={actionContext}
+        onStatusChange={handleMapStatus}
+      />
       <aside className="map-control-panel">
         <header>
           <h1>NYC Council Roll Calls</h1>
@@ -111,7 +137,8 @@ const App = () => {
           id="issue-select"
           value={selectedMatterId ?? ''}
           onChange={handleIssueChange}
-          disabled={issuesState === 'loading' || !issues.length}
+          disabled={isIssuesLoading || !issues.length}
+          aria-busy={isIssuesLoading}
         >
           {issues.length === 0 ? (
             <option value="" disabled>
@@ -143,6 +170,20 @@ const App = () => {
         <section className={`status-line status-line--${statusMessage.variant}`} aria-live="polite">
           {statusMessage.text}
         </section>
+
+        <Legend entries={legendEntries} />
+
+        <footer className="data-source" aria-live="polite">
+          <strong>Data:</strong>{' '}
+          <a
+            href="https://github.com/jehiah/nyc_legislation"
+            target="_blank"
+            rel="noreferrer"
+          >
+            intro.nyc mirror
+          </a>{' '}
+          · cached locally · refreshed &lt; 24h
+        </footer>
       </aside>
     </div>
   );

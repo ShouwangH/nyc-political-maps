@@ -1,3 +1,5 @@
+// ABOUTME: Shared TypeScript interfaces for server-side data models and external payloads.
+// ABOUTME: Inputs = none (type definitions), Outputs = reusable type aliases for services.
 export type VoteStatus = 'Yes' | 'No' | 'Abstain' | 'Missing';
 
 export interface NormalizedIssue {
@@ -14,14 +16,36 @@ export interface NormalizedIssue {
 export interface RollCallVote {
   personId: number;
   personName: string;
+  personSlug: string | null;
+  memberUrl: string | null;
+  isSponsor: boolean;
   district: string | null;
   vote: VoteStatus;
   rawValue: string;
 }
 
+export interface DistrictVoteDetail {
+  district: string;
+  memberId: number;
+  memberName: string;
+  memberSlug: string | null;
+  memberUrl: string | null;
+  vote: VoteStatus;
+  rawValue: string;
+  isSponsor: boolean;
+}
+
+export interface VoteActionContext {
+  name: string | null;
+  body: string | null;
+  date: string | null;
+}
+
 export interface VoteDistribution {
   districts: Record<string, VoteStatus>;
   rollCall: RollCallVote[];
+  districtDetails: Record<string, DistrictVoteDetail>;
+  action: VoteActionContext;
   updatedAt: string;
 }
 
@@ -38,6 +62,7 @@ export interface IntroductionRecord {
   StatusName?: string | null;
   PassedDate?: string | null;
   History?: IntroductionHistoryEntry[] | null;
+  Sponsors?: SponsorEntry[] | null;
 }
 
 export interface IntroductionHistoryEntry {
@@ -57,4 +82,18 @@ export interface IntroductionVoteEntry {
   Vote?: string | null;
   Result?: number | null;
   Sort?: number | null;
+}
+
+export interface SponsorEntry {
+  ID?: number | null;
+  Slug?: string | null;
+  FullName?: string | null;
+}
+
+export interface PersonRecord {
+  ID?: number | null;
+  Slug?: string | null;
+  FullName?: string | null;
+  WWW?: string | null;
+  Email?: string | null;
 }

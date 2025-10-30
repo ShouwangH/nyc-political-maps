@@ -1,3 +1,5 @@
+// ABOUTME: Centralized configuration constants for server services and data sources.
+// ABOUTME: Inputs = environment variables, Outputs = exported constants for other modules.
 export const LEGISTAR_BASE_URL = 'https://webapi.legistar.com/v1/nyc';
 
 export const LEGISTAR_TOKEN = process.env.NYC_LEGISTAR_TOKEN ?? '';
@@ -19,3 +21,8 @@ export const GITHUB_DEFAULT_BRANCH = 'master';
 export const GITHUB_API_BASE = 'https://api.github.com/repos';
 export const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com';
 export const GITHUB_TOKEN = process.env.GITHUB_TOKEN ?? '';
+
+export const CACHE_FILE_PATH = `${process.cwd()}/data/nyc_legislation_cache.json`;
+export const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
+export const PEOPLE_CACHE_FILE_PATH = `${process.cwd()}/data/nyc_legislation_people_cache.json`;
+export const PEOPLE_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
